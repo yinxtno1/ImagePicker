@@ -69,6 +69,7 @@ public class SelectionManager {
         if (mSelectImagePaths.contains(imagePath)) {
             return mSelectImagePaths.remove(imagePath);
         } else {
+            //添加
             if (mSelectImagePaths.size() < mMaxCount) {
                 return mSelectImagePaths.add(imagePath);
             } else {

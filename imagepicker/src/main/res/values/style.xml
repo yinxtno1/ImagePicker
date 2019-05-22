@@ -5,4 +5,9 @@
         <item name="android:windowEnterAnimation">@anim/dialog_slide_show</item>
         <item name="android:windowExitAnimation">@anim/dialog_slide_dismiss</item>
     </style>
+
+    <style name="imageFolderAnimatorV2">
+        <item name="android:windowEnterAnimation">@anim/dialog_top_to_bottom</item>
+        <item name="android:windowExitAnimation">@anim/dialog_bottom_to_top</item>
+    </style>
 </resources>

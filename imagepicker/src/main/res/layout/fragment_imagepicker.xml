@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tool="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tool:ignore="ContentDescription">
+
+    <RelativeLayout
+        android:id="@+id/layout_actionBar"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@color/tool_bar_color">
+
+        <ImageView
+            android:id="@+id/iv_actionBar_back"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:src="@mipmap/icon_actionbar_back" />
+
+        <TextView
+            android:id="@+id/tv_main_imageFolders"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:drawableEnd="@mipmap/icon_album_index"
+            android:drawableRight="@mipmap/icon_album_index"
+            android:drawablePadding="5dp"
+            android:gravity="center"
+            android:text="@string/all_media"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            tool:text="@string/all_media" />
+
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/rl_main_bottom"
+        android:layout_below="@id/layout_actionBar">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_main_images"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/black" />
+
+        <TextView
+            android:id="@+id/tv_image_time"
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:background="@color/text_bg_gray"
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:textColor="@color/text_color_white"
+            android:visibility="gone" />
+    </FrameLayout>
+
+
+</RelativeLayout>

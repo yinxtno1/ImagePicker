@@ -334,7 +334,7 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
                                 setLightMode(LIGHT_ON);
                             }
                         });
-                        updateCommitButton();
+                               updateCommitButton();
                     }
                     mProgressDialog.cancel();
                 }

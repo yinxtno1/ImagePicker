@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.lcw.library.imagepicker.ImagePicker;
+import com.lcw.library.imagepicker.ImagePickerV2;
 
 import java.util.ArrayList;
 
@@ -25,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.bt_select_images).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ImagePicker.getInstance()
+                ImagePickerV2.getInstance()
                         .setTitle("标题")//设置标题
                         .showCamera(true)//设置是否显示拍照按钮
                         .showImage(true)//设置是否展示图片
