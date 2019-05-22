@@ -371,6 +371,7 @@ public class ImagePickerFragment extends Fragment implements ImagePickerAdapterV
     public void onMediaCheck(View view, int position) {
         //执行选中/取消操作
         MediaFile mediaFile = mImagePickerAdapterV2.getMediaFile(position);
+        LogUtils.json(mediaFile);
         String curImagePath = mediaFile.getPath();
         //当前选择的是否是视频
         boolean curIsVideo = MediaFileUtil.isVideoFileType(curImagePath);
@@ -378,39 +379,66 @@ public class ImagePickerFragment extends Fragment implements ImagePickerAdapterV
         boolean curIsSelected = SelectionManager.getInstance().isImageSelect(curImagePath);
         //已选中的集合
         ArrayList<String> selectPathList = SelectionManager.getInstance().getSelectPaths();
-        if(!selectPathList.isEmpty()) {
-            if (!curIsSelected && isSingleType) {
-               boolean firstIsVideo = MediaFileUtil.isVideoFileType(selectPathList.get(0));
-               if(firstIsVideo != curIsVideo) {
-                   //类型不同
-                   Toast.makeText(mContext, getString(R.string.single_type_choose), Toast.LENGTH_SHORT).show();
-                   return;
-               } else if(!firstIsVideo)
-            }
-        }
-
-        if (isSingleType) {
-            //单类型选取，判断添加类型
-            ArrayList<String> selectPathList = SelectionManager.getInstance().getSelectPaths();
-            if (!selectPathList.isEmpty()) {
-                //判断选中集合中第一项是否为视频
-                String path = selectPathList.get(0);
-                boolean isVideo = MediaFileUtil.isVideoFileType(path);
-                if ((!isVideo && mediaFile.getDuration() != 0) || isVideo && mediaFile.getDuration() == 0) {
+        if (!selectPathList.isEmpty() && !curIsSelected) {
+            if (isSingleType) {
+                //图片/视频互斥
+                boolean firstIsVideo = MediaFileUtil.isVideoFileType(selectPathList.get(0));
+                if (firstIsVideo != curIsVideo) {
                     //类型不同
                     Toast.makeText(mContext, getString(R.string.single_type_choose), Toast.LENGTH_SHORT).show();
                     return;
                 }
+                //类型相同
+                if (firstIsVideo) {
+                    //视频
+                    if ((mMaxVideoCount > 0 && selectPathList.size() + 1 > mMaxVideoCount)
+                            || (mMaxVideoCount < 0 && selectPathList.size() + 1 > mMaxCount)) {
+                        Toast.makeText(mContext, "视频数量超了", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                } else {
+                    //图片
+                    if ((mMaxVideoCount > 0 && selectPathList.size() + 1 > mMaxImageCount)
+                            || (mMaxVideoCount < 0 && selectPathList.size() + 1 > mMaxCount)) {
+                        Toast.makeText(mContext, "图片数量超了", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+            } else {
+                //图片、视频二者可同时选择
+                if (selectPathList.size() + 1 > mMaxCount) {
+                    Toast.makeText(mContext, "图片和视频的数量超了", Toast.LENGTH_SHORT).show();
+                    return;
+                }
             }
         }
-        boolean addSuccess = SelectionManager.getInstance().addImageToSelectList(imagePath);
-        if (addSuccess) {
-            mImagePickerAdapterV2.notifyItemChanged(position);
-        } else {
-            Toast.makeText(mContext, String.format(getString(R.string.select_image_max), mMaxCount), Toast.LENGTH_SHORT).show();
-        }
+        SelectionManager.getInstance().addImageToSelectList(curImagePath);
+        mImagePickerAdapterV2.notifyItemChanged(position);
         updateCommitButton();
+//
+//        if (isSingleType) {
+//            //单类型选取，判断添加类型
+//            ArrayList<String> selectPathList = SelectionManager.getInstance().getSelectPaths();
+//            if (!selectPathList.isEmpty()) {
+//                //判断选中集合中第一项是否为视频
+//                String path = selectPathList.get(0);
+//                boolean isVideo = MediaFileUtil.isVideoFileType(path);
+//                if ((!isVideo && mediaFile.getDuration() != 0) || isVideo && mediaFile.getDuration() == 0) {
+//                    //类型不同
+//                    Toast.makeText(mContext, getString(R.string.single_type_choose), Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//            }
+//        }
+//        boolean addSuccess = SelectionManager.getInstance().addImageToSelectList(imagePath);
+//        if (addSuccess) {
+//            mImagePickerAdapterV2.notifyItemChanged(position);
+//        } else {
+//            Toast.makeText(mContext, String.format(getString(R.string.select_image_max), mMaxCount), Toast.LENGTH_SHORT).show();
+//        }
+//        updateCommitButton();
     }
+
 
     /**
      * 更新确认按钮状态
@@ -502,6 +530,9 @@ public class ImagePickerFragment extends Fragment implements ImagePickerAdapterV
         super.onDestroyView();
         mMyHandler.removeCallbacksAndMessages(null);
         mMyHandler = null;
+        mMediaFileList.clear();
+        mMediaFileList = null;
+        SelectionManager.getInstance().removeAll();
         try {
             ConfigManagerV2.getInstance().getImageLoader().clearMemoryCache();
         } catch (Exception e) {

@@ -37,6 +37,7 @@ public class MediaFileUtil {
     public static final int FILE_TYPE_3GPP = 23;
     public static final int FILE_TYPE_3GPP2 = 24;
     public static final int FILE_TYPE_WMV = 25;
+    public static final int FILE_TYPE_RMVB = 26;
     private static final int FIRST_VIDEO_FILE_TYPE = FILE_TYPE_MP4;
     private static final int LAST_VIDEO_FILE_TYPE = FILE_TYPE_WMV;
 
@@ -100,6 +101,7 @@ public class MediaFileUtil {
         addFileType("3G2", FILE_TYPE_3GPP2, "video/3gpp2");
         addFileType("3GPP2", FILE_TYPE_3GPP2, "video/3gpp2");
         addFileType("WMV", FILE_TYPE_WMV, "video/x-ms-wmv");
+        addFileType("RMVB", FILE_TYPE_RMVB, "video/x-pn-realvideo");
 
         addFileType("JPG", FILE_TYPE_JPEG, "image/jpeg");
         addFileType("JPEG", FILE_TYPE_JPEG, "image/jpeg");

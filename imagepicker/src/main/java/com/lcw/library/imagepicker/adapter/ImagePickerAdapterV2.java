@@ -14,6 +14,7 @@ import com.lcw.library.imagepicker.R;
 import com.lcw.library.imagepicker.data.ItemType;
 import com.lcw.library.imagepicker.data.MediaFile;
 import com.lcw.library.imagepicker.manager.ConfigManager;
+import com.lcw.library.imagepicker.manager.ConfigManagerV2;
 import com.lcw.library.imagepicker.manager.SelectionManager;
 import com.lcw.library.imagepicker.utils.Utils;
 import com.lcw.library.imagepicker.view.SquareImageView;
@@ -158,7 +159,7 @@ public class ImagePickerAdapterV2 extends RecyclerView.Adapter<ImagePickerAdapte
         }
 
         try {
-            ConfigManager.getInstance().getImageLoader().loadImage(mediaHolder.mImageView, imagePath);
+            ConfigManagerV2.getInstance().getImageLoader().loadImage(mediaHolder.mImageView, imagePath);
         } catch (Exception e) {
             e.printStackTrace();
         }

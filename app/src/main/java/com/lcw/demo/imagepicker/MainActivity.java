@@ -27,11 +27,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ImagePickerV2.getInstance()
-                        .setTitle("标题")//设置标题
+//                        .setTitle("标题")//设置标题
                         .showCamera(true)//设置是否显示拍照按钮
                         .showImage(true)//设置是否展示图片
                         .showVideo(true)//设置是否展示视频
                         .setMaxCount(9)//设置最大选择图片数目(默认为1，单选)
+                        .setMaxCount(2, 1)
                         .setSingleType(true)//设置图片视频不能同时选择
                         .setImagePaths(mImagePaths)//设置历史选择记录
                         .setImageLoader(new GlideLoader())//设置自定义图片加载器
