@@ -462,7 +462,7 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
                     boolean isVideo = MediaFileUtil.isVideoFileType(path);
                     if ((!isVideo && mediaFile.getDuration() != 0) || isVideo && mediaFile.getDuration() == 0) {
                         //类型不同
-                        Toast.makeText(this, getString(R.string.single_type_choose), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(R.string.error_single_type_choose), Toast.LENGTH_SHORT).show();
                         return;
                     }
                 }

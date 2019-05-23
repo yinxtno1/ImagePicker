@@ -1,5 +1,9 @@
 package com.lcw.library.imagepicker.data;
 
+import com.lcw.library.imagepicker.utils.SimpleObjectUtils;
+
+import java.util.Objects;
+
 /**
  * 媒体实体类
  * Create by: chenWei.li
@@ -62,6 +66,24 @@ public class MediaFile {
 
     public void setDateToken(long dateToken) {
         this.dateToken = dateToken;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MediaFile mediaFile = (MediaFile) o;
+        return duration == mediaFile.duration &&
+                dateToken == mediaFile.dateToken &&
+                SimpleObjectUtils.equals(path, mediaFile.path) &&
+                SimpleObjectUtils.equals(mime, mediaFile.mime) &&
+                SimpleObjectUtils.equals(folderId, mediaFile.folderId) &&
+                SimpleObjectUtils.equals(folderName, mediaFile.folderName);
+    }
+
+    @Override
+    public int hashCode() {
+        return SimpleObjectUtils.hash(path, mime, folderId, folderName, duration, dateToken);
     }
 }
 

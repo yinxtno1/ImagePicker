@@ -13,9 +13,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,21 +25,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.blankj.utilcode.util.LogUtils;
-import com.lcw.library.imagepicker.ImagePicker;
 import com.lcw.library.imagepicker.R;
 import com.lcw.library.imagepicker.adapter.ImageFoldersAdapter;
 import com.lcw.library.imagepicker.adapter.ImagePickerAdapterV2;
+import com.lcw.library.imagepicker.adapter.SelectedAdapter;
 import com.lcw.library.imagepicker.data.MediaFile;
 import com.lcw.library.imagepicker.data.MediaFolder;
 import com.lcw.library.imagepicker.executors.CommonExecutor;
 import com.lcw.library.imagepicker.listener.MediaLoadCallback;
 import com.lcw.library.imagepicker.manager.ConfigManagerV2;
-import com.lcw.library.imagepicker.manager.SelectionManager;
+import com.lcw.library.imagepicker.manager.SelectionManagerV2;
 import com.lcw.library.imagepicker.task.ImageLoadTask;
 import com.lcw.library.imagepicker.task.MediaLoadTask;
 import com.lcw.library.imagepicker.task.VideoLoadTask;
 import com.lcw.library.imagepicker.utils.DataUtil;
-import com.lcw.library.imagepicker.utils.MediaFileUtil;
 import com.lcw.library.imagepicker.utils.Utils;
 import com.lcw.library.imagepicker.view.ImageFolderPopupWindowV2;
 
@@ -68,11 +67,14 @@ public class ImagePickerFragment extends Fragment implements ImagePickerAdapterV
     private TextView mTvImageTime;
     private RecyclerView mRecyclerView;
     private TextView mTvImageFolders;
+    private RecyclerView mRvSelected;
     private ImageFolderPopupWindowV2 mImageFolderPopupWindowV2;
     private ProgressDialog mProgressDialog;
 
     private GridLayoutManager mGridLayoutManager;
     private ImagePickerAdapterV2 mImagePickerAdapterV2;
+
+    private SelectedAdapter mSelectedAdapter;
 
     /**
      * 图片数据源
@@ -140,13 +142,12 @@ public class ImagePickerFragment extends Fragment implements ImagePickerAdapterV
         mMaxCount = ConfigManagerV2.getInstance().getMaxCount();
         mMaxImageCount = ConfigManagerV2.getInstance().getMaxImageCount();
         mMaxVideoCount = ConfigManagerV2.getInstance().getMaxVideoCount();
-        SelectionManager.getInstance().setMaxCount(mMaxCount);
 
-        //载入历史选择记录
-        List<String> mImagePaths = ConfigManagerV2.getInstance().getImagePaths();
-        if (mImagePaths != null && !mImagePaths.isEmpty()) {
-            SelectionManager.getInstance().addImagePathsToSelectList(mImagePaths);
-        }
+        SelectionManagerV2.getInstance().setMaxCount(mMaxCount);
+        SelectionManagerV2.getInstance().setSingleType(isSingleType);
+        SelectionManagerV2.getInstance().setMaxImageCount(mMaxImageCount);
+        SelectionManagerV2.getInstance().setMaxVideoCount(mMaxVideoCount);
+
     }
 
     /**
@@ -174,6 +175,11 @@ public class ImagePickerFragment extends Fragment implements ImagePickerAdapterV
         mImagePickerAdapterV2 = new ImagePickerAdapterV2(mContext, mMediaFileList);
         mImagePickerAdapterV2.setOnItemClickListener(this);
         mRecyclerView.setAdapter(mImagePickerAdapterV2);
+
+        mRvSelected = findViewById(R.id.rv_selected);
+        mSelectedAdapter = new SelectedAdapter();
+        mRvSelected.setAdapter(mSelectedAdapter);
+        mRvSelected.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
 
     }
 
@@ -276,7 +282,7 @@ public class ImagePickerFragment extends Fragment implements ImagePickerAdapterV
                                 setLightMode(LIGHT_ON);
                             }
                         });
-                        updateCommitButton();
+//                        updateCommitButton();
                     }
                     mProgressDialog.cancel();
                 }
@@ -355,8 +361,8 @@ public class ImagePickerFragment extends Fragment implements ImagePickerAdapterV
     public void onMediaClick(View view, int position) {
         if (mMediaFileList != null) {
             DataUtil.getInstance().setMediaData(mMediaFileList);
-            Intent intent = new Intent(mContext, ImagePreActivity.class);
-            intent.putExtra(ImagePreActivity.IMAGE_POSITION, position);
+            Intent intent = new Intent(mContext, ImagePreActivityV2.class);
+            intent.putExtra(ImagePreActivityV2.IMAGE_POSITION, position);
             startActivityForResult(intent, REQUEST_SELECT_IMAGES_CODE);
         }
     }
@@ -371,82 +377,62 @@ public class ImagePickerFragment extends Fragment implements ImagePickerAdapterV
     public void onMediaCheck(View view, int position) {
         //执行选中/取消操作
         MediaFile mediaFile = mImagePickerAdapterV2.getMediaFile(position);
+        boolean curIsSelected = SelectionManagerV2.getInstance().isImageSelect(mediaFile);
         LogUtils.json(mediaFile);
-        String curImagePath = mediaFile.getPath();
-        //当前选择的是否是视频
-        boolean curIsVideo = MediaFileUtil.isVideoFileType(curImagePath);
-        //当前选择的是否已经是被选中的状态
-        boolean curIsSelected = SelectionManager.getInstance().isImageSelect(curImagePath);
-        //已选中的集合
-        ArrayList<String> selectPathList = SelectionManager.getInstance().getSelectPaths();
-        if (!selectPathList.isEmpty() && !curIsSelected) {
-            if (isSingleType) {
-                //图片/视频互斥
-                boolean firstIsVideo = MediaFileUtil.isVideoFileType(selectPathList.get(0));
-                if (firstIsVideo != curIsVideo) {
-                    //类型不同
-                    Toast.makeText(mContext, getString(R.string.single_type_choose), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                //类型相同
-                if (firstIsVideo) {
-                    //视频
-                    if ((mMaxVideoCount > 0 && selectPathList.size() + 1 > mMaxVideoCount)
-                            || (mMaxVideoCount < 0 && selectPathList.size() + 1 > mMaxCount)) {
-                        Toast.makeText(mContext, "视频数量超了", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                } else {
-                    //图片
-                    if ((mMaxVideoCount > 0 && selectPathList.size() + 1 > mMaxImageCount)
-                            || (mMaxVideoCount < 0 && selectPathList.size() + 1 > mMaxCount)) {
-                        Toast.makeText(mContext, "图片数量超了", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                }
+        if (curIsSelected) {
+            SelectionManagerV2.getInstance().remove(mediaFile);
+            mImagePickerAdapterV2.notifyItemChanged(position);
+            updateSelectedRecyclerView(mediaFile, false);
+            updateCommitButton();
+        } else if (SelectionManagerV2.getInstance().canSelected(mContext, mediaFile)) {
+            SelectionManagerV2.getInstance().addImageToSelectList(mediaFile);
+            mImagePickerAdapterV2.notifyItemChanged(position);
+            updateSelectedRecyclerView(mediaFile, true);
+            updateCommitButton();
+        }
+    }
+
+    /**
+     * 更新选中的 RecyclerView
+     */
+    private void updateSelectedRecyclerView(MediaFile mediaFile, boolean isAdd) {
+        if (mediaFile == null) {
+            List<MediaFile> selectedList = SelectionManagerV2.getInstance().getSelectFile();
+            if (selectedList.equals(mSelectedAdapter.getData())) {
+                return;
+            }
+            mSelectedAdapter.setNewDatas(selectedList);
+            if (selectedList.isEmpty()) {
+                mRvSelected.setVisibility(View.GONE);
+                mRecyclerView.setPadding(0, 0, 0, 0);
             } else {
-                //图片、视频二者可同时选择
-                if (selectPathList.size() + 1 > mMaxCount) {
-                    Toast.makeText(mContext, "图片和视频的数量超了", Toast.LENGTH_SHORT).show();
-                    return;
+                mRvSelected.setVisibility(View.VISIBLE);
+                mRecyclerView.setPadding(0, 0, 0, Utils.dp2px(80));
+                mRvSelected.smoothScrollToPosition(mSelectedAdapter.getItemCount());
+            }
+        } else {
+            if (isAdd) {
+                mRvSelected.setVisibility(View.VISIBLE);
+                mSelectedAdapter.addData(mediaFile);
+                mRvSelected.smoothScrollToPosition(mSelectedAdapter.getItemCount());
+                mRecyclerView.setPadding(0, 0, 0, Utils.dp2px(80));
+            } else {
+                mSelectedAdapter.remove(mediaFile);
+                if (mSelectedAdapter.getItemCount() == 0) {
+                    mRvSelected.setVisibility(View.GONE);
+                    mRecyclerView.setPadding(0, 0, 0, 0);
                 }
             }
         }
-        SelectionManager.getInstance().addImageToSelectList(curImagePath);
-        mImagePickerAdapterV2.notifyItemChanged(position);
-        updateCommitButton();
-//
-//        if (isSingleType) {
-//            //单类型选取，判断添加类型
-//            ArrayList<String> selectPathList = SelectionManager.getInstance().getSelectPaths();
-//            if (!selectPathList.isEmpty()) {
-//                //判断选中集合中第一项是否为视频
-//                String path = selectPathList.get(0);
-//                boolean isVideo = MediaFileUtil.isVideoFileType(path);
-//                if ((!isVideo && mediaFile.getDuration() != 0) || isVideo && mediaFile.getDuration() == 0) {
-//                    //类型不同
-//                    Toast.makeText(mContext, getString(R.string.single_type_choose), Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-//            }
-//        }
-//        boolean addSuccess = SelectionManager.getInstance().addImageToSelectList(imagePath);
-//        if (addSuccess) {
-//            mImagePickerAdapterV2.notifyItemChanged(position);
-//        } else {
-//            Toast.makeText(mContext, String.format(getString(R.string.select_image_max), mMaxCount), Toast.LENGTH_SHORT).show();
-//        }
-//        updateCommitButton();
     }
-
 
     /**
      * 更新确认按钮状态
      */
     private void updateCommitButton() {
         //改变确定按钮UI
-        int selectCount = SelectionManager.getInstance().getSelectPaths().size();
-        LogUtils.json(SelectionManager.getInstance().getSelectPaths());
+        int selectCount = SelectionManagerV2.getInstance().getSelectFile().size();
+        LogUtils.json(SelectionManagerV2.getInstance().getSelectFile());
 //        if (selectCount == 0) {
 //            mTvCommit.setEnabled(false);
 //            mTvCommit.setText(getString(R.string.confirm));
@@ -501,12 +487,12 @@ public class ImagePickerFragment extends Fragment implements ImagePickerAdapterV
      * 选择图片完毕，返回
      */
     private void commitSelection() {
-        ArrayList<String> list = new ArrayList<>(SelectionManager.getInstance().getSelectPaths());
-        Intent intent = new Intent();
-        intent.putStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES, list);
+//        ArrayList<String> list = new ArrayList<>(SelectionManagerV2.getInstance().getSelectFile());
+//        Intent intent = new Intent();
+//        intent.putStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES, list);
         Toast.makeText(mContext, "图片选择完毕", Toast.LENGTH_SHORT).show();
 //        setResult(RESULT_OK, intent);
-//        SelectionManager.getInstance().removeAll();//清空选中记录
+//        SelectionManagerV2.getInstance().removeAll();//清空选中记录
 //        finish();
     }
 
@@ -514,8 +500,9 @@ public class ImagePickerFragment extends Fragment implements ImagePickerAdapterV
     @Override
     public void onResume() {
         super.onResume();
+        updateSelectedRecyclerView(null, false);
         mImagePickerAdapterV2.notifyDataSetChanged();
-        updateCommitButton();
+//        updateCommitButton();
     }
 
 //    @Override
@@ -532,7 +519,7 @@ public class ImagePickerFragment extends Fragment implements ImagePickerAdapterV
         mMyHandler = null;
         mMediaFileList.clear();
         mMediaFileList = null;
-        SelectionManager.getInstance().removeAll();
+        SelectionManagerV2.getInstance().removeAll();
         try {
             ConfigManagerV2.getInstance().getImageLoader().clearMemoryCache();
         } catch (Exception e) {

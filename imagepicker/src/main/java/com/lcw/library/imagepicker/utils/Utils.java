@@ -1,6 +1,7 @@
 package com.lcw.library.imagepicker.utils;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
@@ -67,6 +68,11 @@ public class Utils {
         Date date = new Date(timestamp);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
         return simpleDateFormat.format(date);
+    }
+
+    public static int dp2px(final float dpValue) {
+        final float scale = Resources.getSystem().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
     }
 
 }

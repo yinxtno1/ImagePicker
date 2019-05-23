@@ -13,5 +13,9 @@
     <string name="take_photo">拍摄图片</string>
     <string name="permission_tip">当前没有读取存储卡或摄像头权限</string>
     <string name="image_select">选择</string>
-    <string name="single_type_choose">不能同时选择图片与视频</string>
+
+    <string name="error_single_type_choose">不能同时选择图片与视频</string>
+    <string name="error_select_video_max">最多只能选择%d个视频</string>
+    <string name="error_select_image_max">最多只能选择%d张图片</string>
+    <string name="error_select_max">最多只能选择%d个文件</string>
 </resources>

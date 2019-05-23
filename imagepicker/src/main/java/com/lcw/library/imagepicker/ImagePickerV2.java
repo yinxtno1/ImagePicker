@@ -1,9 +1,11 @@
 package com.lcw.library.imagepicker;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 
 import com.lcw.library.imagepicker.activity.ImagePickerFragmentActivity;
+import com.lcw.library.imagepicker.activity.ImagePreActivityV2;
 import com.lcw.library.imagepicker.manager.ConfigManagerV2;
 import com.lcw.library.imagepicker.utils.ImageLoader;
 
@@ -87,7 +89,6 @@ public class ImagePickerV2 {
     }
 
     /**
-     *
      * @param maxImageCount
      * @param maxVideoCount
      * @return

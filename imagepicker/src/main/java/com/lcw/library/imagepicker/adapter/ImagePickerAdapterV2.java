@@ -15,7 +15,7 @@ import com.lcw.library.imagepicker.data.ItemType;
 import com.lcw.library.imagepicker.data.MediaFile;
 import com.lcw.library.imagepicker.manager.ConfigManager;
 import com.lcw.library.imagepicker.manager.ConfigManagerV2;
-import com.lcw.library.imagepicker.manager.SelectionManager;
+import com.lcw.library.imagepicker.manager.SelectionManagerV2;
 import com.lcw.library.imagepicker.utils.Utils;
 import com.lcw.library.imagepicker.view.SquareImageView;
 import com.lcw.library.imagepicker.view.SquareRelativeLayout;
@@ -149,8 +149,8 @@ public class ImagePickerAdapterV2 extends RecyclerView.Adapter<ImagePickerAdapte
     private void bindMedia(MediaHolder mediaHolder, MediaFile mediaFile) {
 
         String imagePath = mediaFile.getPath();
-        //选择状态（仅是UI表现，真正数据交给SelectionManager管理）
-        if (SelectionManager.getInstance().isImageSelect(imagePath)) {
+        //选择状态（仅是UI表现，真正数据交给SelectionManagerV2管理）
+        if (SelectionManagerV2.getInstance().isImageSelect(mediaFile)) {
             mediaHolder.mImageView.setColorFilter(Color.parseColor("#77000000"));
             mediaHolder.mImageCheck.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.icon_image_checked));
         } else {

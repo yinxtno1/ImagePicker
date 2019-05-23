@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.lcw.library.imagepicker.data.MediaFile;
-import com.lcw.library.imagepicker.manager.ConfigManager;
+import com.lcw.library.imagepicker.manager.ConfigManagerV2;
 import com.lcw.library.imagepicker.view.PinchImageView;
 
 import java.util.LinkedList;
@@ -53,7 +53,7 @@ public class ImagePreViewAdapter extends PagerAdapter {
             imageView = new PinchImageView(mContext);
         }
         try {
-            ConfigManager.getInstance().getImageLoader().loadPreImage(imageView, mMediaFileList.get(position).getPath());
+            ConfigManagerV2.getInstance().getImageLoader().loadPreImage(imageView, mMediaFileList.get(position).getPath());
         } catch (Exception e) {
             e.printStackTrace();
         }

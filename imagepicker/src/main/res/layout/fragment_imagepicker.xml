@@ -48,7 +48,8 @@
             android:id="@+id/rv_main_images"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/black" />
+            android:background="@android:color/black"
+            android:clipToPadding="false" />
 
         <TextView
             android:id="@+id/tv_image_time"
@@ -60,6 +61,14 @@
             android:textColor="@color/text_color_white"
             android:visibility="gone" />
     </FrameLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_selected"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
+        android:background="#C3000000"
+        android:visibility="gone" />
 
 
 </RelativeLayout>

@@ -1,5 +1,6 @@
 package com.lcw.library.imagepicker.activity;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -15,10 +16,12 @@ import android.view.View;
 public abstract class BaseActivity extends AppCompatActivity {
 
     private View mView;
+    protected Activity mActivity;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mActivity = this;
         if (mView == null) {
             mView = View.inflate(this, bindLayout(), null);
         }
