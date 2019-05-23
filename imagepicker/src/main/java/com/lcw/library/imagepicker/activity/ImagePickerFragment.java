@@ -37,6 +37,7 @@ import com.lcw.library.imagepicker.manager.ConfigManagerV2;
 import com.lcw.library.imagepicker.manager.SelectionManagerV2;
 import com.lcw.library.imagepicker.task.ImageLoadTask;
 import com.lcw.library.imagepicker.task.MediaLoadTask;
+import com.lcw.library.imagepicker.task.MediaLoadTaskV2;
 import com.lcw.library.imagepicker.task.VideoLoadTask;
 import com.lcw.library.imagepicker.utils.DataUtil;
 import com.lcw.library.imagepicker.utils.Utils;
@@ -234,7 +235,7 @@ public class ImagePickerFragment extends Fragment implements ImagePickerAdapterV
 
         //照片、视频全部加载
         if (isShowImage && isShowVideo) {
-            mediaLoadTask = new MediaLoadTask(mContext, new MediaLoader());
+            mediaLoadTask = new MediaLoadTaskV2(mContext, new MediaLoader());
         }
 
         //只加载视频

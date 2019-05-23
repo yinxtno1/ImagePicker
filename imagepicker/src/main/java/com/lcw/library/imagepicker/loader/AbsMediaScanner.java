@@ -74,6 +74,7 @@ public abstract class AbsMediaScanner<T> {
         ArrayList<T> list = new ArrayList<>();
         ContentResolver contentResolver = mContext.getContentResolver();
         Cursor cursor = contentResolver.query(getScanUri(), getProjection(), getSelection(), getSelectionArgs(), getOrder());
+
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 T t = parse(cursor);

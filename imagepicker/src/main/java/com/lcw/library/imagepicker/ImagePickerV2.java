@@ -6,10 +6,13 @@ import android.content.Intent;
 
 import com.lcw.library.imagepicker.activity.ImagePickerFragmentActivity;
 import com.lcw.library.imagepicker.activity.ImagePreActivityV2;
+import com.lcw.library.imagepicker.data.MimeType;
 import com.lcw.library.imagepicker.manager.ConfigManagerV2;
 import com.lcw.library.imagepicker.utils.ImageLoader;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 统一调用入口
@@ -23,6 +26,7 @@ public class ImagePickerV2 {
     public static final String EXTRA_SELECT_IMAGES = "selectItems";
 
     private static volatile ImagePickerV2 mImagePicker;
+    private ConfigManagerV2 mConfigManager;
 
     private ImagePickerV2() {
     }
@@ -40,7 +44,12 @@ public class ImagePickerV2 {
                 }
             }
         }
+        mImagePicker.initConfigManager();
         return mImagePicker;
+    }
+
+    private void initConfigManager() {
+        mConfigManager = ConfigManagerV2.getClearInstance();
     }
 
     /**
@@ -50,7 +59,7 @@ public class ImagePickerV2 {
      * @return
      */
     public ImagePickerV2 showCamera(boolean showCamera) {
-        ConfigManagerV2.getInstance().setShowCamera(showCamera);
+        mConfigManager.setShowCamera(showCamera);
         return mImagePicker;
     }
 
@@ -61,7 +70,7 @@ public class ImagePickerV2 {
      * @return
      */
     public ImagePickerV2 showImage(boolean showImage) {
-        ConfigManagerV2.getInstance().setShowImage(showImage);
+        mConfigManager.setShowImage(showImage);
         return mImagePicker;
     }
 
@@ -72,10 +81,14 @@ public class ImagePickerV2 {
      * @return
      */
     public ImagePickerV2 showVideo(boolean showVideo) {
-        ConfigManagerV2.getInstance().setShowVideo(showVideo);
+        mConfigManager.setShowVideo(showVideo);
         return mImagePicker;
     }
 
+    public ImagePickerV2 choiceMimeType(Set<MimeType> mimeTypes) {
+        mConfigManager.setMimeTypeSet(mimeTypes);
+        return mImagePicker;
+    }
 
     /**
      * 图片最大选择数
@@ -84,42 +97,40 @@ public class ImagePickerV2 {
      * @return
      */
     public ImagePickerV2 setMaxCount(int maxCount) {
-        ConfigManagerV2.getInstance().setMaxCount(maxCount);
+        mConfigManager.setMaxCount(maxCount);
         return mImagePicker;
     }
 
     /**
+     * 设置图片或视频的最大选择数（在媒体类型只能单独选择时有效，singleType = true）
+     *
      * @param maxImageCount
      * @param maxVideoCount
      * @return
      */
     public ImagePickerV2 setMaxCount(int maxImageCount, int maxVideoCount) {
-        ConfigManagerV2.getInstance().setMaxImageCount(maxImageCount);
-        ConfigManagerV2.getInstance().setMaxVideoCount(maxVideoCount);
+        if (maxImageCount < 1 || maxVideoCount < 1)
+            throw new IllegalArgumentException(("max selectable must be greater than or equal to one"));
+        mConfigManager.setMaxImageCount(maxImageCount);
+        mConfigManager.setMaxVideoCount(maxVideoCount);
         return mImagePicker;
     }
 
     /**
-     * 设置单类型选择（只能选图片或者视频）
+     * 媒体类型是否只能单独选择（只能选图片或者视频）
      *
      * @param isSingleType
      * @return
      */
     public ImagePickerV2 setSingleType(boolean isSingleType) {
-        ConfigManagerV2.getInstance().setSingleType(isSingleType);
+        mConfigManager.setSingleType(isSingleType);
         return mImagePicker;
     }
 
-    public ImagePickerV2 setMaxImageCount(int maxImageCount) {
-        ConfigManagerV2.getInstance().setMaxImageCount(maxImageCount);
+    public ImagePickerV2 setVideoMaxDuration(long maxDuration) {
+        mConfigManager.setVideoMaxDuration(maxDuration);
         return mImagePicker;
     }
-
-    public ImagePickerV2 setMaxVideoCount(int maxVideoCount) {
-        ConfigManagerV2.getInstance().setMaxVideoCount(maxVideoCount);
-        return mImagePicker;
-    }
-
 
     /**
      * 设置图片加载器
@@ -128,18 +139,7 @@ public class ImagePickerV2 {
      * @return
      */
     public ImagePickerV2 setImageLoader(ImageLoader imageLoader) {
-        ConfigManagerV2.getInstance().setImageLoader(imageLoader);
-        return mImagePicker;
-    }
-
-    /**
-     * 设置图片选择历史记录
-     *
-     * @param imagePaths
-     * @return
-     */
-    public ImagePickerV2 setImagePaths(ArrayList<String> imagePaths) {
-        ConfigManagerV2.getInstance().setImagePaths(imagePaths);
+        mConfigManager.setImageLoader(imageLoader);
         return mImagePicker;
     }
 
@@ -149,6 +149,16 @@ public class ImagePickerV2 {
      * @param activity
      */
     public void start(Activity activity, int requestCode) {
+        if (mConfigManager.getMimeTypes() == null) {
+            Set<MimeType> mimeTypes = new HashSet<>();
+            if (mConfigManager.isShowImage()) {
+                mimeTypes.addAll(MimeType.ofImage());
+            }
+            if (mConfigManager.isShowVideo()) {
+                mimeTypes.addAll(MimeType.ofVideo());
+            }
+            mConfigManager.setMimeTypeSet(mimeTypes);
+        }
         Intent intent = new Intent(activity, ImagePickerFragmentActivity.class);
         activity.startActivityForResult(intent, requestCode);
     }

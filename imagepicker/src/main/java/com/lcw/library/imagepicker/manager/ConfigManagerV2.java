@@ -1,8 +1,10 @@
 package com.lcw.library.imagepicker.manager;
 
+import com.lcw.library.imagepicker.data.MimeType;
 import com.lcw.library.imagepicker.utils.ImageLoader;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * 统一配置管理类
@@ -29,6 +31,10 @@ public class ConfigManagerV2 {
      */
     private boolean showVideo = true;
     /**
+     * 需要被展示的 mimeType
+     */
+    private Set<MimeType> mimeTypeSet;
+    /**
      * 选择模式，默认单选
      */
     private int selectionMode = SELECT_MODE_SINGLE;
@@ -49,9 +55,9 @@ public class ConfigManagerV2 {
      */
     private int maxVideoCount = -1;
     /**
-     * 上一次选择的图片地址集合
+     * 视频最大时长
      */
-    private ArrayList<String> imagePaths;
+    private long videoMaxDuration = Long.MAX_VALUE;
 
     private ImageLoader imageLoader;
 
@@ -69,6 +75,26 @@ public class ConfigManagerV2 {
             }
         }
         return mConfigManager;
+    }
+
+    public static ConfigManagerV2 getClearInstance(){
+        ConfigManagerV2 instance = getInstance();
+        instance.reset();
+        return instance;
+    }
+
+    private void reset(){
+        showCamera = false;
+        showImage = true;
+        showVideo = true;
+        mimeTypeSet = null;
+        selectionMode = SELECT_MODE_SINGLE;
+        maxCount = 1;
+        singleType = false;
+        maxImageCount = -1;
+        maxVideoCount = -1;
+        imageLoader = null;
+        videoMaxDuration = Long.MAX_VALUE;
     }
 
     public boolean isShowCamera() {
@@ -95,6 +121,14 @@ public class ConfigManagerV2 {
         this.showVideo = showVideo;
     }
 
+    public void setMimeTypeSet(Set<MimeType> mimeTypes) {
+        this.mimeTypeSet = mimeTypes;
+    }
+
+    public Set<MimeType> getMimeTypes(){
+        return mimeTypeSet;
+    }
+
     public int getMaxCount() {
         return maxCount;
     }
@@ -112,14 +146,6 @@ public class ConfigManagerV2 {
 
     public void setSelectionMode(int mSelectionMode) {
         this.selectionMode = mSelectionMode;
-    }
-
-    public ArrayList<String> getImagePaths() {
-        return imagePaths;
-    }
-
-    public void setImagePaths(ArrayList<String> imagePaths) {
-        this.imagePaths = imagePaths;
     }
 
     public ImageLoader getImageLoader() throws Exception {
@@ -151,6 +177,14 @@ public class ConfigManagerV2 {
 
     public void setMaxVideoCount(int maxVideoCount) {
         this.maxVideoCount = maxVideoCount;
+    }
+
+    public void setVideoMaxDuration(long maxDuration) {
+        this.videoMaxDuration = maxDuration;
+    }
+
+    public long getVideoMaxDuration() {
+        return videoMaxDuration;
     }
 
     public void setImageLoader(ImageLoader imageLoader) {

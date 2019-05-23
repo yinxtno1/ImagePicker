@@ -89,8 +89,9 @@ public enum MimeType {
             "avi"
     ));
 
-    private final String mMimeTypeName;
-    private final Set<String> mExtensions;
+
+    public final String mMimeTypeName;
+    public final Set<String> mExtensions;
 
     MimeType(String mimeTypeName, Set<String> extensions) {
         mMimeTypeName = mimeTypeName;
